@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Audio Input/Ouput
-# Author: Handiko Gesang
-# Generated: Sun Sep  9 01:22:53 2018
+# Title: Vocal Changer
+# Generated: Sun Sep  9 01:34:44 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -22,21 +21,24 @@ from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 from gnuradio import eng_notation
+from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
+import math
 import sip
 import sys
 
 
-class audio_io(gr.top_block, Qt.QWidget):
+class vocal_changer(gr.top_block, Qt.QWidget):
 
-    def __init__(self, samp_rate=48e3):
-        gr.top_block.__init__(self, "Audio Input/Ouput")
+    def __init__(self):
+        gr.top_block.__init__(self, "Vocal Changer")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Audio Input/Ouput")
+        self.setWindowTitle("Vocal Changer")
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
         except:
@@ -53,19 +55,73 @@ class audio_io(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "audio_io")
+        self.settings = Qt.QSettings("GNU Radio", "vocal_changer")
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
-        # Parameters
+        # Variables
         ##################################################
-        self.samp_rate = samp_rate
+        self.samp_rate = samp_rate = 48e3
+        self.subband = subband = (samp_rate/4)/4
+        self.shift = shift = 0
 
         ##################################################
         # Blocks
         ##################################################
+        self._shift_range = Range(-1e3, 1e3, 1, 0, 200)
+        self._shift_win = RangeWidget(self._shift_range, self.set_shift, "shift", "counter_slider", float)
+        self.top_layout.addWidget(self._shift_win)
+        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=2,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.qtgui_freq_sink_x_1 = qtgui.freq_sink_f(
+        	4096, #size
+        	firdes.WIN_BLACKMAN_hARRIS, #wintype
+        	0, #fc
+        	samp_rate, #bw
+        	"", #name
+        	1 #number of inputs
+        )
+        self.qtgui_freq_sink_x_1.set_update_time(0.01)
+        self.qtgui_freq_sink_x_1.set_y_axis(-140, -40)
+        self.qtgui_freq_sink_x_1.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_1.enable_autoscale(False)
+        self.qtgui_freq_sink_x_1.enable_grid(True)
+        self.qtgui_freq_sink_x_1.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_1.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_1.enable_control_panel(False)
+        
+        if not False:
+          self.qtgui_freq_sink_x_1.disable_legend()
+        
+        if "float" == "float" or "float" == "msg_float":
+          self.qtgui_freq_sink_x_1.set_plot_pos_half(not False)
+        
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["red", "red", "green", "black", "cyan",
+                  "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_1.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_1.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_1.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_1.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_1.set_line_alpha(i, alphas[i])
+        
+        self._qtgui_freq_sink_x_1_win = sip.wrapinstance(self.qtgui_freq_sink_x_1.pyqwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_freq_sink_x_1_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
-        	2048, #size
+        	4096, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
         	samp_rate, #bw
@@ -90,11 +146,11 @@ class audio_io(gr.top_block, Qt.QWidget):
         
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
-        widths = [2, 1, 1, 1, 1,
+        widths = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
         colors = ["red", "red", "green", "black", "cyan",
                   "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [0.75, 1.0, 1.0, 1.0, 1.0,
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
         for i in xrange(1):
             if len(labels[i]) == 0:
@@ -107,24 +163,26 @@ class audio_io(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.blocks_stream_mux_0 = blocks.stream_mux(gr.sizeof_float*1, (1, 1))
-        self.audio_source_0 = audio.source(int(samp_rate/2), '', True)
+        self.blocks_wavfile_source_0 = blocks.wavfile_source('/home/handiko/Will James get his PhD - VIVA.wav', True)
+        self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
+        self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.audio_sink_0 = audio.sink(int(samp_rate), '', True)
-        self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
-        self.analog_agc_xx_0 = analog.agc_ff(1e-2, 0.1, 1.0)
+        self.analog_agc_xx_0 = analog.agc_ff(1e-2, 0.05, 1.0)
         self.analog_agc_xx_0.set_max_gain(65536)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc_xx_0, 0), (self.blocks_stream_mux_0, 0))    
-        self.connect((self.analog_const_source_x_0, 0), (self.blocks_stream_mux_0, 1))    
-        self.connect((self.audio_source_0, 0), (self.analog_agc_xx_0, 0))    
-        self.connect((self.blocks_stream_mux_0, 0), (self.audio_sink_0, 0))    
-        self.connect((self.blocks_stream_mux_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.analog_agc_xx_0, 0), (self.blocks_float_to_complex_0, 0))    
+        self.connect((self.analog_agc_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.blocks_complex_to_real_0, 0), (self.audio_sink_0, 0))    
+        self.connect((self.blocks_complex_to_real_0, 0), (self.qtgui_freq_sink_x_1, 0))    
+        self.connect((self.blocks_float_to_complex_0, 0), (self.rational_resampler_xxx_0, 0))    
+        self.connect((self.blocks_wavfile_source_0, 0), (self.analog_agc_xx_0, 0))    
+        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_complex_to_real_0, 0))    
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "audio_io")
+        self.settings = Qt.QSettings("GNU Radio", "vocal_changer")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -133,20 +191,24 @@ class audio_io(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.set_subband((self.samp_rate/4)/4)
+        self.qtgui_freq_sink_x_1.set_frequency_range(0, self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
 
+    def get_subband(self):
+        return self.subband
 
-def argument_parser():
-    parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
-    parser.add_option(
-        "-s", "--samp-rate", dest="samp_rate", type="eng_float", default=eng_notation.num_to_str(48e3),
-        help="Set Sample Rate [default=%default]")
-    return parser
+    def set_subband(self, subband):
+        self.subband = subband
+
+    def get_shift(self):
+        return self.shift
+
+    def set_shift(self, shift):
+        self.shift = shift
 
 
-def main(top_block_cls=audio_io, options=None):
-    if options is None:
-        options, _ = argument_parser().parse_args()
+def main(top_block_cls=vocal_changer, options=None):
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
@@ -154,7 +216,7 @@ def main(top_block_cls=audio_io, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(samp_rate=options.samp_rate)
+    tb = top_block_cls()
     tb.start()
     tb.show()
 

@@ -132,7 +132,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2200*1+(fsk_lo_tone+baudrate)*0</value>
+      <value>2200*0+(fsk_lo_tone+baudrate)*1</value>
     </param>
   </block>
   <block>
@@ -881,7 +881,7 @@
     </param>
     <param>
       <key>maxsize</key>
-      <value>128</value>
+      <value>128*4</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1238,7 +1238,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>fsk_low</key>
@@ -1263,6 +1263,77 @@
     <param>
       <key>id</key>
       <value>fsk_packet_tx_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>preamble_len</key>
+      <value>preamble_len</value>
+    </param>
+    <param>
+      <key>preamble_sym</key>
+      <value>preamble_char</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>zero_pad</key>
+      <value>zero_pad</value>
+    </param>
+  </block>
+  <block>
+    <key>fsk_packet_tx_1</key>
+    <param>
+      <key>baud</key>
+      <value>baudrate</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>fsk_low</key>
+      <value>fsk_hi_tone</value>
+    </param>
+    <param>
+      <key>fsk_hi</key>
+      <value>fsk_lo_tone</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(534, 152)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>hdr_format</key>
+      <value>hdr_format</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fsk_packet_tx_1_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2432,11 +2503,11 @@
     </param>
     <param>
       <key>int_max</key>
-      <value>20</value>
+      <value>10</value>
     </param>
     <param>
       <key>int_min</key>
-      <value>-80</value>
+      <value>-70</value>
     </param>
     <param>
       <key>legend</key>
@@ -2979,6 +3050,12 @@
     <sink_key>data in</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>fsk_packet_tx_1_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>data in</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_rotator_cc_0</source_block_id>
     <sink_block_id>root_raised_cosine_filter_0</sink_block_id>
     <source_key>0</source_key>
@@ -3046,6 +3123,12 @@
   </connection>
   <connection>
     <source_block_id>fsk_packet_tx_0</source_block_id>
+    <sink_block_id>channels_channel_model_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fsk_packet_tx_1_0</source_block_id>
     <sink_block_id>channels_channel_model_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

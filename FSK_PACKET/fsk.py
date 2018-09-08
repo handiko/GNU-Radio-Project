@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: FSK Packet Transmission
-# Generated: Sat Sep  8 03:20:01 2018
+# Generated: Sat Sep  8 20:12:41 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -21,7 +21,7 @@ import sys
 sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnuradio')))
 
 from PyQt4 import Qt
-from fsk_packet_tx import fsk_packet_tx  # grc-generated hier_block
+from fsk_packet_tx_1 import fsk_packet_tx_1  # grc-generated hier_block
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
@@ -79,7 +79,7 @@ class fsk(gr.top_block, Qt.QWidget):
         self.preamble_len = preamble_len = 32
         self.preamble_char = preamble_char = 0xaa
         self.hdr_format = hdr_format = digital.header_format_default(digital.packet_utils.default_access_code, 0)
-        self.fsk_hi_tone = fsk_hi_tone = 2200*1+(fsk_lo_tone+baudrate)*0
+        self.fsk_hi_tone = fsk_hi_tone = 2200*0+(fsk_lo_tone+baudrate)*1
 
         ##################################################
         # Blocks
@@ -120,7 +120,7 @@ class fsk(gr.top_block, Qt.QWidget):
             self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
             self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
         
-        self.qtgui_waterfall_sink_x_0.set_intensity_range(-80, 20)
+        self.qtgui_waterfall_sink_x_0.set_intensity_range(-70, 10)
         
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_win, 0,1,1,1)
@@ -264,7 +264,7 @@ class fsk(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,1)
-        self.fsk_packet_tx_0 = fsk_packet_tx(
+        self.fsk_packet_tx_1_0 = fsk_packet_tx_1(
             baud=baudrate,
             fsk_hi=fsk_lo_tone,
             fsk_low=fsk_hi_tone,
@@ -287,7 +287,7 @@ class fsk(gr.top_block, Qt.QWidget):
         self.blocks_sub_xx_0 = blocks.sub_ff(1)
         self.blocks_rotator_cc_1 = blocks.rotator_cc((-1.0*fsk_hi_tone/samp_rate)*2*math.pi)
         self.blocks_rotator_cc_0 = blocks.rotator_cc((-1.0*fsk_lo_tone/samp_rate)*2*math.pi)
-        self.blocks_random_pdu_0 = blocks.random_pdu(2, 128, chr(0xFF), 2)
+        self.blocks_random_pdu_0 = blocks.random_pdu(2, 128*4, chr(0xFF), 2)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((0.1, ))
         self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), 500)
@@ -300,7 +300,7 @@ class fsk(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.blocks_random_pdu_0, 'generate'))    
-        self.msg_connect((self.blocks_random_pdu_0, 'pdus'), (self.fsk_packet_tx_0, 'data in'))    
+        self.msg_connect((self.blocks_random_pdu_0, 'pdus'), (self.fsk_packet_tx_1_0, 'data in'))    
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_sub_xx_0, 0))    
         self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_sub_xx_0, 1))    
         self.connect((self.blocks_complex_to_real_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
@@ -317,7 +317,7 @@ class fsk(gr.top_block, Qt.QWidget):
         self.connect((self.channels_channel_model_0, 0), (self.qtgui_time_sink_x_0, 0))    
         self.connect((self.channels_channel_model_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_time_sink_x_1, 0))    
-        self.connect((self.fsk_packet_tx_0, 0), (self.channels_channel_model_0, 0))    
+        self.connect((self.fsk_packet_tx_1_0, 0), (self.channels_channel_model_0, 0))    
         self.connect((self.root_raised_cosine_filter_0, 0), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.root_raised_cosine_filter_1, 0), (self.blocks_complex_to_mag_1, 0))    
 
@@ -338,7 +338,7 @@ class fsk(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.fsk_packet_tx_0.set_samp_rate(self.samp_rate)
+        self.fsk_packet_tx_1_0.set_samp_rate(self.samp_rate)
         self.blocks_rotator_cc_1.set_phase_inc((-1.0*self.fsk_hi_tone/self.samp_rate)*2*math.pi)
         self.blocks_rotator_cc_0.set_phase_inc((-1.0*self.fsk_lo_tone/self.samp_rate)*2*math.pi)
 
@@ -348,10 +348,10 @@ class fsk(gr.top_block, Qt.QWidget):
     def set_baudrate(self, baudrate):
         self.baudrate = baudrate
         self.set_sps(int(self.samp_rate)/self.baudrate)
-        self.set_fsk_hi_tone(2200*1+(self.fsk_lo_tone+self.baudrate)*0)
+        self.set_fsk_hi_tone(2200*0+(self.fsk_lo_tone+self.baudrate)*1)
         self.root_raised_cosine_filter_1.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.baudrate, 0.7, 11*int(self.samp_rate)/self.baudrate))
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.baudrate, 0.7, 11*int(self.samp_rate)/self.baudrate))
-        self.fsk_packet_tx_0.set_baud(self.baudrate)
+        self.fsk_packet_tx_1_0.set_baud(self.baudrate)
 
     def get_sps(self):
         return self.sps
@@ -370,8 +370,8 @@ class fsk(gr.top_block, Qt.QWidget):
 
     def set_fsk_lo_tone(self, fsk_lo_tone):
         self.fsk_lo_tone = fsk_lo_tone
-        self.set_fsk_hi_tone(2200*1+(self.fsk_lo_tone+self.baudrate)*0)
-        self.fsk_packet_tx_0.set_fsk_hi(self.fsk_lo_tone)
+        self.set_fsk_hi_tone(2200*0+(self.fsk_lo_tone+self.baudrate)*1)
+        self.fsk_packet_tx_1_0.set_fsk_hi(self.fsk_lo_tone)
         self.blocks_rotator_cc_0.set_phase_inc((-1.0*self.fsk_lo_tone/self.samp_rate)*2*math.pi)
 
     def get_zero_pad(self):
@@ -379,7 +379,7 @@ class fsk(gr.top_block, Qt.QWidget):
 
     def set_zero_pad(self, zero_pad):
         self.zero_pad = zero_pad
-        self.fsk_packet_tx_0.set_zero_pad(self.zero_pad)
+        self.fsk_packet_tx_1_0.set_zero_pad(self.zero_pad)
 
     def get_rrc_taps(self):
         return self.rrc_taps
@@ -393,28 +393,28 @@ class fsk(gr.top_block, Qt.QWidget):
 
     def set_preamble_len(self, preamble_len):
         self.preamble_len = preamble_len
-        self.fsk_packet_tx_0.set_preamble_len(self.preamble_len)
+        self.fsk_packet_tx_1_0.set_preamble_len(self.preamble_len)
 
     def get_preamble_char(self):
         return self.preamble_char
 
     def set_preamble_char(self, preamble_char):
         self.preamble_char = preamble_char
-        self.fsk_packet_tx_0.set_preamble_sym(self.preamble_char)
+        self.fsk_packet_tx_1_0.set_preamble_sym(self.preamble_char)
 
     def get_hdr_format(self):
         return self.hdr_format
 
     def set_hdr_format(self, hdr_format):
         self.hdr_format = hdr_format
-        self.fsk_packet_tx_0.set_hdr_format(self.hdr_format)
+        self.fsk_packet_tx_1_0.set_hdr_format(self.hdr_format)
 
     def get_fsk_hi_tone(self):
         return self.fsk_hi_tone
 
     def set_fsk_hi_tone(self, fsk_hi_tone):
         self.fsk_hi_tone = fsk_hi_tone
-        self.fsk_packet_tx_0.set_fsk_low(self.fsk_hi_tone)
+        self.fsk_packet_tx_1_0.set_fsk_low(self.fsk_hi_tone)
         self.blocks_rotator_cc_1.set_phase_inc((-1.0*self.fsk_hi_tone/self.samp_rate)*2*math.pi)
 
 

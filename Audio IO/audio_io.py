@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: Audio Input/Ouput
 # Author: Handiko Gesang
-# Generated: Sun Sep  9 01:22:53 2018
+# Generated: Mon Sep 10 17:34:42 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -20,7 +20,6 @@ if __name__ == '__main__':
 from PyQt4 import Qt
 from gnuradio import analog
 from gnuradio import audio
-from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio import qtgui
@@ -107,21 +106,17 @@ class audio_io(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.blocks_stream_mux_0 = blocks.stream_mux(gr.sizeof_float*1, (1, 1))
         self.audio_source_0 = audio.source(int(samp_rate/2), '', True)
         self.audio_sink_0 = audio.sink(int(samp_rate), '', True)
-        self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.analog_agc_xx_0 = analog.agc_ff(1e-2, 0.1, 1.0)
         self.analog_agc_xx_0.set_max_gain(65536)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc_xx_0, 0), (self.blocks_stream_mux_0, 0))    
-        self.connect((self.analog_const_source_x_0, 0), (self.blocks_stream_mux_0, 1))    
+        self.connect((self.analog_agc_xx_0, 0), (self.audio_sink_0, 0))    
+        self.connect((self.analog_agc_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.audio_source_0, 0), (self.analog_agc_xx_0, 0))    
-        self.connect((self.blocks_stream_mux_0, 0), (self.audio_sink_0, 0))    
-        self.connect((self.blocks_stream_mux_0, 0), (self.qtgui_freq_sink_x_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "audio_io")

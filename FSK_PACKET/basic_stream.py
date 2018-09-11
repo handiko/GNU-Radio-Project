@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Basic Stream
-# Generated: Mon Sep 10 18:48:57 2018
+# Generated: Tue Sep 11 17:18:17 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -20,6 +20,7 @@ from PyQt4 import Qt
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
+from gnuradio import fec
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
@@ -57,16 +58,32 @@ class basic_stream(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 32000
+        
+        
+        self.enc = enc = fec.cc_encoder_make(8000, 7, 2, ([79,109]), 0, fec.CC_TERMINATED, False)
+            
+        
+        
+        self.dec = dec = fec.cc_decoder.make(2048, 7, 2, ([79,109]), 0, -1, fec.CC_TERMINATED, False)
+            
 
         ##################################################
         # Blocks
         ##################################################
-        self.digital_crc32_async_bb_2 = digital.crc32_async_bb(True)
+        self.fec_async_encoder_0 = fec.async_encoder(enc, False, True, True, 1500)
+        self.fec_async_decoder_0 = fec.async_decoder(dec, False, True, 1500)
+        self.digital_crc32_async_bb_1 = digital.crc32_async_bb(True)
         self.digital_crc32_async_bb_0 = digital.crc32_async_bb(False)
+        self.blocks_random_pdu_0_0_0 = blocks.random_pdu(10, 10, chr(0xFF), 1)
         self.blocks_random_pdu_0_0 = blocks.random_pdu(10, 10, chr(0xFF), 1)
         self.blocks_random_pdu_0 = blocks.random_pdu(10, 10, chr(0xFF), 1)
+        self.blocks_message_strobe_0_0_0 = blocks.message_strobe(pmt.intern("TEST"), 1000)
         self.blocks_message_strobe_0_0 = blocks.message_strobe(pmt.intern("TEST"), 1000)
         self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), 1000)
+        self.blocks_message_debug_5 = blocks.message_debug()
+        self.blocks_message_debug_4 = blocks.message_debug()
+        self.blocks_message_debug_3 = blocks.message_debug()
+        self.blocks_message_debug_2 = blocks.message_debug()
         self.blocks_message_debug_1 = blocks.message_debug()
         self.blocks_message_debug_0_0 = blocks.message_debug()
         self.blocks_message_debug_0 = blocks.message_debug()
@@ -76,11 +93,18 @@ class basic_stream(gr.top_block, Qt.QWidget):
         ##################################################
         self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.blocks_random_pdu_0, 'generate'))    
         self.msg_connect((self.blocks_message_strobe_0_0, 'strobe'), (self.blocks_random_pdu_0_0, 'generate'))    
+        self.msg_connect((self.blocks_message_strobe_0_0_0, 'strobe'), (self.blocks_random_pdu_0_0_0, 'generate'))    
         self.msg_connect((self.blocks_random_pdu_0, 'pdus'), (self.blocks_message_debug_0, 'print_pdu'))    
+        self.msg_connect((self.blocks_random_pdu_0_0, 'pdus'), (self.blocks_message_debug_0_0, 'print_pdu'))    
         self.msg_connect((self.blocks_random_pdu_0_0, 'pdus'), (self.digital_crc32_async_bb_0, 'in'))    
-        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.blocks_message_debug_0_0, 'print_pdu'))    
-        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.digital_crc32_async_bb_2, 'in'))    
-        self.msg_connect((self.digital_crc32_async_bb_2, 'out'), (self.blocks_message_debug_1, 'print_pdu'))    
+        self.msg_connect((self.blocks_random_pdu_0_0_0, 'pdus'), (self.blocks_message_debug_3, 'print_pdu'))    
+        self.msg_connect((self.blocks_random_pdu_0_0_0, 'pdus'), (self.fec_async_encoder_0, 'in'))    
+        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.blocks_message_debug_1, 'print_pdu'))    
+        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.digital_crc32_async_bb_1, 'in'))    
+        self.msg_connect((self.digital_crc32_async_bb_1, 'out'), (self.blocks_message_debug_2, 'print_pdu'))    
+        self.msg_connect((self.fec_async_decoder_0, 'out'), (self.blocks_message_debug_5, 'print_pdu'))    
+        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.blocks_message_debug_4, 'print_pdu'))    
+        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.fec_async_decoder_0, 'in'))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "basic_stream")
@@ -92,6 +116,18 @@ class basic_stream(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+
+    def get_enc(self):
+        return self.enc
+
+    def set_enc(self, enc):
+        self.enc = enc
+
+    def get_dec(self):
+        return self.dec
+
+    def set_dec(self, dec):
+        self.dec = dec
 
 
 def main(top_block_cls=basic_stream, options=None):

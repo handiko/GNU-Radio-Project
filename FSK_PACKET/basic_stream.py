@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Basic Stream
-# Generated: Thu Sep 13 19:14:49 2018
+# Generated: Fri Sep 14 10:37:21 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -17,15 +17,19 @@ if __name__ == '__main__':
             print "Warning: failed to XInitThreads()"
 
 from PyQt4 import Qt
+from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import fec
 from gnuradio import gr
+from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
 import pmt
+import sip
 import sys
 
 
@@ -58,42 +62,90 @@ class basic_stream(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 32000
+        self.noise = noise = -3.0
         self.hdr_format = hdr_format = digital.header_format_default(digital.packet_utils.default_access_code, 0)
         
         
-        self.enc = enc = fec.cc_encoder_make(8000, 7, 2, ([109,79]), 0, fec.CC_TERMINATED, False)
+        self.enc = enc = fec.cc_encoder_make(8192, 7, 2, ([109,79]), 0, fec.CC_TERMINATED, False)
             
         
         
-        self.dec = dec = fec.cc_decoder.make(2048, 7, 2, ([109,79]), 0, -1, fec.CC_TERMINATED, False)
+        self.dec = dec = fec.cc_decoder.make(8192, 7, 2, ([109,79]), 0, -1, fec.CC_TERMINATED, False)
             
+        
+        self.const = const = digital.constellation_bpsk().base()
+        
 
         ##################################################
         # Blocks
         ##################################################
+        self._noise_range = Range(-30.0, 3.0, 1.0, -3.0, 200)
+        self._noise_win = RangeWidget(self._noise_range, self.set_noise, "noise", "counter_slider", float)
+        self.top_layout.addWidget(self._noise_win)
+        self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
+        	1024, #size
+        	samp_rate, #samp_rate
+        	"", #name
+        	1 #number of inputs
+        )
+        self.qtgui_time_sink_x_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0.set_y_axis(-2, 2)
+        
+        self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
+        
+        self.qtgui_time_sink_x_0.enable_tags(-1, True)
+        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_0.enable_grid(False)
+        self.qtgui_time_sink_x_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0.enable_control_panel(False)
+        
+        if not True:
+          self.qtgui_time_sink_x_0.disable_legend()
+        
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+                  "magenta", "yellow", "dark red", "dark green", "blue"]
+        styles = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+                   -1, -1, -1, -1, -1]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+        
+        for i in xrange(2*1):
+            if len(labels[i]) == 0:
+                if(i % 2 == 0):
+                    self.qtgui_time_sink_x_0.set_line_label(i, "Re{{Data {0}}}".format(i/2))
+                else:
+                    self.qtgui_time_sink_x_0.set_line_label(i, "Im{{Data {0}}}".format(i/2))
+            else:
+                self.qtgui_time_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
+        
+        self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
         self.fec_async_encoder_0 = fec.async_encoder(enc, True, False, False, 1500)
-        self.fec_async_decoder_0 = fec.async_decoder(dec, False, False, 1500)
-        self.digital_protocol_formatter_async_0 = digital.protocol_formatter_async(hdr_format)
-        self.digital_map_bb_0 = digital.map_bb(([-1,1]))
+        self.fec_async_decoder_0 = fec.async_decoder(dec, True, False, 1500)
         self.digital_crc32_async_bb_1 = digital.crc32_async_bb(True)
         self.digital_crc32_async_bb_0 = digital.crc32_async_bb(False)
-        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts(digital.packet_utils.default_access_code,
-          1, 'payload')
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
-        self.blocks_tagged_stream_to_pdu_2 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'payload')
-        self.blocks_tagged_stream_to_pdu_1 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'packet_len')
+        self.digital_constellation_soft_decoder_cf_0 = digital.constellation_soft_decoder_cf(const)
+        self.digital_chunks_to_symbols_xx_0 = digital.chunks_to_symbols_bc(([-1,1]), 1)
         self.blocks_tagged_stream_to_pdu_0 = blocks.tagged_stream_to_pdu(blocks.float_t, 'packet_len')
-        self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_char*1, 'packet_len', 0)
-        self.blocks_repack_bits_bb_1 = blocks.repack_bits_bb(1, 8, 'payload', False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(8, 1, 'packet_len', False, gr.GR_MSB_FIRST)
-        self.blocks_random_pdu_0 = blocks.random_pdu(10, 10, chr(0xFF), 2)
-        self.blocks_pdu_to_tagged_stream_3 = blocks.pdu_to_tagged_stream(blocks.byte_t, 'packet_len')
-        self.blocks_pdu_to_tagged_stream_2 = blocks.pdu_to_tagged_stream(blocks.byte_t, 'packet_len')
-        self.blocks_pdu_to_tagged_stream_1 = blocks.pdu_to_tagged_stream(blocks.byte_t, 'packet_len')
+        self.blocks_random_pdu_0 = blocks.random_pdu(10, 400, chr(0xFF), 2)
         self.blocks_pdu_to_tagged_stream_0 = blocks.pdu_to_tagged_stream(blocks.byte_t, 'packet_len')
         self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), 500)
         self.blocks_message_debug_0 = blocks.message_debug()
-        self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
+        self.blocks_add_xx_0 = blocks.add_vcc(1)
+        self.analog_noise_source_x_0 = analog.noise_source_c(analog.GR_GAUSSIAN, pow(10.0,noise/10.0), 0)
 
         ##################################################
         # Connections
@@ -101,25 +153,17 @@ class basic_stream(gr.top_block, Qt.QWidget):
         self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.blocks_random_pdu_0, 'generate'))    
         self.msg_connect((self.blocks_random_pdu_0, 'pdus'), (self.digital_crc32_async_bb_0, 'in'))    
         self.msg_connect((self.blocks_tagged_stream_to_pdu_0, 'pdus'), (self.fec_async_decoder_0, 'in'))    
-        self.msg_connect((self.blocks_tagged_stream_to_pdu_1, 'pdus'), (self.fec_async_encoder_0, 'in'))    
-        self.msg_connect((self.blocks_tagged_stream_to_pdu_2, 'pdus'), (self.digital_crc32_async_bb_1, 'in'))    
-        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.digital_protocol_formatter_async_0, 'in'))    
+        self.msg_connect((self.digital_crc32_async_bb_0, 'out'), (self.fec_async_encoder_0, 'in'))    
         self.msg_connect((self.digital_crc32_async_bb_1, 'out'), (self.blocks_message_debug_0, 'print_pdu'))    
-        self.msg_connect((self.digital_protocol_formatter_async_0, 'header'), (self.blocks_pdu_to_tagged_stream_0, 'pdus'))    
-        self.msg_connect((self.digital_protocol_formatter_async_0, 'payload'), (self.blocks_pdu_to_tagged_stream_1, 'pdus'))    
-        self.msg_connect((self.fec_async_decoder_0, 'out'), (self.blocks_pdu_to_tagged_stream_3, 'pdus'))    
-        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.blocks_pdu_to_tagged_stream_2, 'pdus'))    
-        self.connect((self.blocks_char_to_float_0, 0), (self.blocks_throttle_0, 0))    
-        self.connect((self.blocks_pdu_to_tagged_stream_0, 0), (self.blocks_tagged_stream_mux_0, 0))    
-        self.connect((self.blocks_pdu_to_tagged_stream_1, 0), (self.blocks_tagged_stream_mux_0, 1))    
-        self.connect((self.blocks_pdu_to_tagged_stream_2, 0), (self.blocks_repack_bits_bb_0, 0))    
-        self.connect((self.blocks_pdu_to_tagged_stream_3, 0), (self.digital_correlate_access_code_xx_ts_0, 0))    
-        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_map_bb_0, 0))    
-        self.connect((self.blocks_repack_bits_bb_1, 0), (self.blocks_tagged_stream_to_pdu_2, 0))    
-        self.connect((self.blocks_tagged_stream_mux_0, 0), (self.blocks_tagged_stream_to_pdu_1, 0))    
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))    
-        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_repack_bits_bb_1, 0))    
-        self.connect((self.digital_map_bb_0, 0), (self.blocks_char_to_float_0, 0))    
+        self.msg_connect((self.fec_async_decoder_0, 'out'), (self.digital_crc32_async_bb_1, 'in'))    
+        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.blocks_pdu_to_tagged_stream_0, 'pdus'))    
+        self.connect((self.analog_noise_source_x_0, 0), (self.blocks_add_xx_0, 0))    
+        self.connect((self.blocks_add_xx_0, 0), (self.digital_constellation_soft_decoder_cf_0, 0))    
+        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_time_sink_x_0, 0))    
+        self.connect((self.blocks_pdu_to_tagged_stream_0, 0), (self.blocks_repack_bits_bb_0, 0))    
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_chunks_to_symbols_xx_0, 0))    
+        self.connect((self.digital_chunks_to_symbols_xx_0, 0), (self.blocks_add_xx_0, 1))    
+        self.connect((self.digital_constellation_soft_decoder_cf_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "basic_stream")
@@ -131,7 +175,14 @@ class basic_stream(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
+        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+
+    def get_noise(self):
+        return self.noise
+
+    def set_noise(self, noise):
+        self.noise = noise
+        self.analog_noise_source_x_0.set_amplitude(pow(10.0,self.noise/10.0))
 
     def get_hdr_format(self):
         return self.hdr_format
@@ -150,6 +201,12 @@ class basic_stream(gr.top_block, Qt.QWidget):
 
     def set_dec(self, dec):
         self.dec = dec
+
+    def get_const(self):
+        return self.const
+
+    def set_const(self, const):
+        self.const = const
 
 
 def main(top_block_cls=basic_stream, options=None):

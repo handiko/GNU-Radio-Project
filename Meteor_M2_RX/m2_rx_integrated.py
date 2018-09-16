@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Sun Sep 16 20:18:13 2018
+# Generated: Sun Sep 16 20:36:35 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -16,26 +16,26 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
+import os
+import sys
+sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnuradio')))
+
 from PyQt4 import Qt
 from datetime import datetime
-from gnuradio import analog
 from gnuradio import blocks
-from gnuradio import digital
 from gnuradio import eng_notation
-from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from m2_rx_hier import m2_rx_hier  # grc-generated hier_block
 from optparse import OptionParser
-import math
 import osmosdr
 import sip
-import sys
 import time
 
 
-class m2_rx(gr.top_block, Qt.QWidget):
+class m2_rx_integrated(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Meteor M2 Receiver")
@@ -57,26 +57,18 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "m2_rx")
+        self.settings = Qt.QSettings("GNU Radio", "m2_rx_integrated")
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
         # Variables
         ##################################################
-        self.baudrate = baudrate = 72000
-        self.ch_rate = ch_rate = baudrate*2.0
-        self.sps = sps = int(ch_rate) / baudrate
-        self.nfilt = nfilt = 32
-        self.eb = eb = 0.7
         self.source = source = 2
         self.samp_rate = samp_rate = 300e3
-        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilt,nfilt,1.0/sps,eb,8*sps*nfilt)
-        self.rf_rate = rf_rate = 2.4e6
         self.rate = rate = [0, 2.4e6, 150e3]
-        self.gmu = gmu = 0.002
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"
         self.device = device = [0,"rtl=0","file=gqrx_20180415_012338_137900000_150000_fc.raw,rate=150e3,throttle=True"]
-        self.bw = bw = 6.28 / 100
+        self.baudrate = baudrate = 72000
 
         ##################################################
         # Blocks
@@ -98,20 +90,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.tab_layout_2.addLayout(self.tab_grid_layout_2)
         self.tab.addTab(self.tab_widget_2, 'Softbits')
         self.top_layout.addWidget(self.tab)
-        self.root_raised_cosine_filter_0 = filter.fir_filter_ccf(1, firdes.root_raised_cosine(
-        	1, ch_rate, baudrate*1.0, 0.7, 32*sps))
-        self.rational_resampler_xxx_1 = filter.rational_resampler_ccc(
-                interpolation=int(samp_rate),
-                decimation=int(rate[source]),
-                taps=None,
-                fractional_bw=490e-3,
-        )
-        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
-                interpolation=int(ch_rate),
-                decimation=int(samp_rate),
-                taps=None,
-                fractional_bw=None,
-        )
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	8192, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -342,83 +320,33 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.osmosdr_source_0.set_antenna('', 0)
         self.osmosdr_source_0.set_bandwidth(0, 0)
           
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(6.28/200, 4, False)
-        self.digital_constellation_soft_decoder_cf_1 = digital.constellation_soft_decoder_cf(digital.constellation_calcdist(([-1-1j, -1+1j, 1+1j, 1-1j]), ([0, 1, 3, 2]), 4, 1).base())
-        self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(16, 1.0, 6.28/400, 1)
-        self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_cc((ch_rate/baudrate)*(1+0.0), 0.25*gmu*gmu, 0.5, gmu, 0.005)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
-        self.blocks_float_to_char_0 = blocks.float_to_char(1, 127)
-        self.analog_rail_ff_0 = analog.rail_ff(-1, 1)
-        self.analog_agc_xx_0 = analog.agc_cc(1e-2, 0.25, 1.0)
-        self.analog_agc_xx_0.set_max_gain(65536)
+        self.m2_rx_hier_0 = m2_rx_hier(
+            samp_rate=rate[source],
+        )
+        self.blocks_tagged_stream_to_pdu_0 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'packet_len')
+        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 4096, "packet_len")
+        self.blocks_socket_pdu_0 = blocks.socket_pdu("TCP_SERVER", '', '2011', 4096, False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, filename, False)
+        self.blocks_file_sink_0.set_unbuffered(False)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc_xx_0, 0), (self.root_raised_cosine_filter_0, 0))    
-        self.connect((self.analog_rail_ff_0, 0), (self.blocks_float_to_char_0, 0))    
-        self.connect((self.blocks_float_to_char_0, 0), (self.blocks_null_sink_0, 0))    
-        self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_cma_equalizer_cc_0, 0))    
-        self.connect((self.digital_cma_equalizer_cc_0, 0), (self.digital_costas_loop_cc_0, 0))    
-        self.connect((self.digital_constellation_soft_decoder_cf_1, 0), (self.analog_rail_ff_0, 0))    
-        self.connect((self.digital_constellation_soft_decoder_cf_1, 0), (self.qtgui_time_sink_x_1, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_soft_decoder_cf_1, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_time_sink_x_0, 0))    
-        self.connect((self.osmosdr_source_0, 0), (self.rational_resampler_xxx_1, 0))    
-        self.connect((self.rational_resampler_xxx_0, 0), (self.analog_agc_xx_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.qtgui_waterfall_sink_x_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.rational_resampler_xxx_0, 0))    
-        self.connect((self.root_raised_cosine_filter_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))    
+        self.msg_connect((self.blocks_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_socket_pdu_0, 'pdus'))    
+        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))    
+        self.connect((self.m2_rx_hier_0, 0), (self.blocks_file_sink_0, 0))    
+        self.connect((self.m2_rx_hier_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))    
+        self.connect((self.m2_rx_hier_0, 2), (self.qtgui_const_sink_x_0, 0))    
+        self.connect((self.m2_rx_hier_0, 1), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.m2_rx_hier_0, 2), (self.qtgui_time_sink_x_0, 0))    
+        self.connect((self.m2_rx_hier_0, 3), (self.qtgui_time_sink_x_1, 0))    
+        self.connect((self.m2_rx_hier_0, 1), (self.qtgui_waterfall_sink_x_0, 0))    
+        self.connect((self.osmosdr_source_0, 0), (self.m2_rx_hier_0, 0))    
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "m2_rx")
+        self.settings = Qt.QSettings("GNU Radio", "m2_rx_integrated")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
-
-    def get_baudrate(self):
-        return self.baudrate
-
-    def set_baudrate(self, baudrate):
-        self.baudrate = baudrate
-        self.set_sps(int(self.ch_rate) / self.baudrate)
-        self.set_ch_rate(self.baudrate*2.0)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-        self.qtgui_time_sink_x_1.set_samp_rate(self.baudrate*2)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.baudrate)
-        self.digital_clock_recovery_mm_xx_0.set_omega((self.ch_rate/self.baudrate)*(1+0.0))
-
-    def get_ch_rate(self):
-        return self.ch_rate
-
-    def set_ch_rate(self, ch_rate):
-        self.ch_rate = ch_rate
-        self.set_sps(int(self.ch_rate) / self.baudrate)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-        self.digital_clock_recovery_mm_xx_0.set_omega((self.ch_rate/self.baudrate)*(1+0.0))
-
-    def get_sps(self):
-        return self.sps
-
-    def set_sps(self, sps):
-        self.sps = sps
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-
-    def get_nfilt(self):
-        return self.nfilt
-
-    def set_nfilt(self, nfilt):
-        self.nfilt = nfilt
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
-
-    def get_eb(self):
-        return self.eb
-
-    def set_eb(self, eb):
-        self.eb = eb
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
 
     def get_source(self):
         return self.source
@@ -426,6 +354,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
     def set_source(self, source):
         self.source = source
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
+        self.m2_rx_hier_0.set_samp_rate(self.rate[self.source])
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -435,38 +364,20 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
 
-    def get_rrc_taps(self):
-        return self.rrc_taps
-
-    def set_rrc_taps(self, rrc_taps):
-        self.rrc_taps = rrc_taps
-
-    def get_rf_rate(self):
-        return self.rf_rate
-
-    def set_rf_rate(self, rf_rate):
-        self.rf_rate = rf_rate
-
     def get_rate(self):
         return self.rate
 
     def set_rate(self, rate):
         self.rate = rate
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
-
-    def get_gmu(self):
-        return self.gmu
-
-    def set_gmu(self, gmu):
-        self.gmu = gmu
-        self.digital_clock_recovery_mm_xx_0.set_gain_omega(0.25*self.gmu*self.gmu)
-        self.digital_clock_recovery_mm_xx_0.set_gain_mu(self.gmu)
+        self.m2_rx_hier_0.set_samp_rate(self.rate[self.source])
 
     def get_filename(self):
         return self.filename
 
     def set_filename(self, filename):
         self.filename = filename
+        self.blocks_file_sink_0.open(self.filename)
 
     def get_device(self):
         return self.device
@@ -474,14 +385,16 @@ class m2_rx(gr.top_block, Qt.QWidget):
     def set_device(self, device):
         self.device = device
 
-    def get_bw(self):
-        return self.bw
+    def get_baudrate(self):
+        return self.baudrate
 
-    def set_bw(self, bw):
-        self.bw = bw
+    def set_baudrate(self, baudrate):
+        self.baudrate = baudrate
+        self.qtgui_time_sink_x_1.set_samp_rate(self.baudrate*2)
+        self.qtgui_time_sink_x_0.set_samp_rate(self.baudrate)
 
 
-def main(top_block_cls=m2_rx, options=None):
+def main(top_block_cls=m2_rx_integrated, options=None):
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):

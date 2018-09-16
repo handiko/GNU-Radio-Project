@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Sun Sep 16 20:18:13 2018
+# Generated: Mon Sep 17 01:46:11 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -66,17 +66,13 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.baudrate = baudrate = 72000
         self.ch_rate = ch_rate = baudrate*2.0
         self.sps = sps = int(ch_rate) / baudrate
-        self.nfilt = nfilt = 32
-        self.eb = eb = 0.7
         self.source = source = 2
         self.samp_rate = samp_rate = 300e3
-        self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilt,nfilt,1.0/sps,eb,8*sps*nfilt)
         self.rf_rate = rf_rate = 2.4e6
         self.rate = rate = [0, 2.4e6, 150e3]
         self.gmu = gmu = 0.002
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"
         self.device = device = [0,"rtl=0","file=gqrx_20180415_012338_137900000_150000_fc.raw,rate=150e3,throttle=True"]
-        self.bw = bw = 6.28 / 100
 
         ##################################################
         # Blocks
@@ -403,22 +399,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_sps(self, sps):
         self.sps = sps
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-
-    def get_nfilt(self):
-        return self.nfilt
-
-    def set_nfilt(self, nfilt):
-        self.nfilt = nfilt
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
-
-    def get_eb(self):
-        return self.eb
-
-    def set_eb(self, eb):
-        self.eb = eb
-        self.set_rrc_taps(firdes.root_raised_cosine(self.nfilt,self.nfilt,1.0/self.sps,self.eb,8*self.sps*self.nfilt))
 
     def get_source(self):
         return self.source
@@ -434,12 +415,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
-
-    def get_rrc_taps(self):
-        return self.rrc_taps
-
-    def set_rrc_taps(self, rrc_taps):
-        self.rrc_taps = rrc_taps
 
     def get_rf_rate(self):
         return self.rf_rate
@@ -473,12 +448,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_device(self, device):
         self.device = device
-
-    def get_bw(self):
-        return self.bw
-
-    def set_bw(self, bw):
-        self.bw = bw
 
 
 def main(top_block_cls=m2_rx, options=None):

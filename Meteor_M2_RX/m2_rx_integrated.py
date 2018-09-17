@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Sun Sep 16 20:36:35 2018
+# Generated: Mon Sep 17 18:08:51 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -63,7 +63,7 @@ class m2_rx_integrated(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.source = source = 2
+        self.source = source = 1
         self.samp_rate = samp_rate = 300e3
         self.rate = rate = [0, 2.4e6, 150e3]
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"

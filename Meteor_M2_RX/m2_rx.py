@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Mon Sep 17 01:46:11 2018
+# Generated: Mon Sep 17 18:08:26 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -66,7 +66,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.baudrate = baudrate = 72000
         self.ch_rate = ch_rate = baudrate*2.0
         self.sps = sps = int(ch_rate) / baudrate
-        self.source = source = 2
+        self.source = source = 1
         self.samp_rate = samp_rate = 300e3
         self.rf_rate = rf_rate = 2.4e6
         self.rate = rate = [0, 2.4e6, 150e3]

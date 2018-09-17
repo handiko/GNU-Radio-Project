@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Mon Sep 17 18:08:26 2018
+# Generated: Mon Sep 17 20:47:27 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -344,6 +344,8 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_cc((ch_rate/baudrate)*(1+0.0), 0.25*gmu*gmu, 0.5, gmu, 0.005)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_float_to_char_0 = blocks.float_to_char(1, 127)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, filename, False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.analog_rail_ff_0 = analog.rail_ff(-1, 1)
         self.analog_agc_xx_0 = analog.agc_cc(1e-2, 0.25, 1.0)
         self.analog_agc_xx_0.set_max_gain(65536)
@@ -353,6 +355,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_agc_xx_0, 0), (self.root_raised_cosine_filter_0, 0))    
         self.connect((self.analog_rail_ff_0, 0), (self.blocks_float_to_char_0, 0))    
+        self.connect((self.blocks_float_to_char_0, 0), (self.blocks_file_sink_0, 0))    
         self.connect((self.blocks_float_to_char_0, 0), (self.blocks_null_sink_0, 0))    
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_cma_equalizer_cc_0, 0))    
         self.connect((self.digital_cma_equalizer_cc_0, 0), (self.digital_costas_loop_cc_0, 0))    
@@ -442,6 +445,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_filename(self, filename):
         self.filename = filename
+        self.blocks_file_sink_0.open(self.filename)
 
     def get_device(self):
         return self.device

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Mon Sep 17 18:08:51 2018
+# Generated: Mon Sep 17 20:47:20 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -323,19 +323,13 @@ class m2_rx_integrated(gr.top_block, Qt.QWidget):
         self.m2_rx_hier_0 = m2_rx_hier(
             samp_rate=rate[source],
         )
-        self.blocks_tagged_stream_to_pdu_0 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'packet_len')
-        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 4096, "packet_len")
-        self.blocks_socket_pdu_0 = blocks.socket_pdu("TCP_SERVER", '', '2011', 4096, False)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, filename, False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_socket_pdu_0, 'pdus'))    
-        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))    
         self.connect((self.m2_rx_hier_0, 0), (self.blocks_file_sink_0, 0))    
-        self.connect((self.m2_rx_hier_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))    
         self.connect((self.m2_rx_hier_0, 2), (self.qtgui_const_sink_x_0, 0))    
         self.connect((self.m2_rx_hier_0, 1), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.m2_rx_hier_0, 2), (self.qtgui_time_sink_x_0, 0))    

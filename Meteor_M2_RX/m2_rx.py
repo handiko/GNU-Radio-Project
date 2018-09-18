@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Mon Sep 17 20:47:27 2018
+# Generated: Tue Sep 18 13:25:12 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -37,7 +37,7 @@ import time
 
 class m2_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self):
+    def __init__(self, source=1):
         gr.top_block.__init__(self, "Meteor M2 Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Meteor M2 Receiver")
@@ -61,12 +61,16 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
+        # Parameters
+        ##################################################
+        self.source = source
+
+        ##################################################
         # Variables
         ##################################################
         self.baudrate = baudrate = 72000
         self.ch_rate = ch_rate = baudrate*2.0
         self.sps = sps = int(ch_rate) / baudrate
-        self.source = source = 1
         self.samp_rate = samp_rate = 300e3
         self.rf_rate = rf_rate = 2.4e6
         self.rate = rate = [0, 2.4e6, 150e3]
@@ -376,6 +380,13 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_source(self):
+        return self.source
+
+    def set_source(self, source):
+        self.source = source
+        self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
+
     def get_baudrate(self):
         return self.baudrate
 
@@ -403,13 +414,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
     def set_sps(self, sps):
         self.sps = sps
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-
-    def get_source(self):
-        return self.source
-
-    def set_source(self, source):
-        self.source = source
-        self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -454,7 +458,17 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.device = device
 
 
+def argument_parser():
+    parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
+    parser.add_option(
+        "-i", "--source", dest="source", type="intx", default=1,
+        help="Set Input Source [default=%default]")
+    return parser
+
+
 def main(top_block_cls=m2_rx, options=None):
+    if options is None:
+        options, _ = argument_parser().parse_args()
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
@@ -462,7 +476,7 @@ def main(top_block_cls=m2_rx, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls()
+    tb = top_block_cls(source=options.source)
     tb.start()
     tb.show()
 

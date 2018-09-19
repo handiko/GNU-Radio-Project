@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: RTL SDR FM RX
-# Generated: Wed Sep 19 14:01:10 2018
+# Generated: Wed Sep 19 20:37:11 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -19,6 +19,7 @@ if __name__ == '__main__':
 from PyQt4 import Qt
 from gnuradio import analog
 from gnuradio import audio
+from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import filter
 from gnuradio import gr
@@ -63,7 +64,8 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 2.88e6
+        self.samp_rate_trim = samp_rate_trim = 0
+        self.samp_rate = samp_rate = 2.88e6 + 0.13733
         self.rfgain = rfgain = 12
         self.freq = freq = 103.8
         self.ch_rate = ch_rate = 240e3
@@ -74,6 +76,9 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
+        self._samp_rate_trim_range = Range(-100, 100, 1, 0, 200)
+        self._samp_rate_trim_win = RangeWidget(self._samp_rate_trim_range, self.set_samp_rate_trim, 'Rate adjust(sps)', "counter_slider", int)
+        self.top_grid_layout.addWidget(self._samp_rate_trim_win, 3,1,1,1)
         self._rfgain_range = Range(0, 49, 0.1, 12, 200)
         self._rfgain_win = RangeWidget(self._rfgain_range, self.set_rfgain, 'RF Gain (dB)', "counter_slider", float)
         self.top_grid_layout.addWidget(self._rfgain_win, 2,0,1,1)
@@ -86,7 +91,7 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         self._audio_mute_callback = lambda i: Qt.QMetaObject.invokeMethod(_audio_mute_check_box, "setChecked", Qt.Q_ARG("bool", self._audio_mute_choices_inv[i]))
         self._audio_mute_callback(self.audio_mute)
         _audio_mute_check_box.stateChanged.connect(lambda i: self.set_audio_mute(self._audio_mute_choices[bool(i)]))
-        self.top_layout.addWidget(_audio_mute_check_box)
+        self.top_grid_layout.addWidget(_audio_mute_check_box, 3,0,1,1)
         self._afgain_range = Range(-20, 3, 0.1, -10, 200)
         self._afgain_win = RangeWidget(self._afgain_range, self.set_afgain, 'AF Gain (dB)', "counter_slider", float)
         self.top_grid_layout.addWidget(self._afgain_win, 2,1,1,1)
@@ -140,7 +145,7 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,2)
         self.osmosdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
-        self.osmosdr_source_0.set_sample_rate(samp_rate)
+        self.osmosdr_source_0.set_sample_rate(samp_rate + samp_rate_trim)
         self.osmosdr_source_0.set_center_freq(freq*1e6, 0)
         self.osmosdr_source_0.set_freq_corr(55, 0)
         self.osmosdr_source_0.set_dc_offset_mode(2, 0)
@@ -154,6 +159,8 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
           
         self.fft_filter_xxx_0 = filter.fft_filter_fff(10, (firdes.low_pass(pow(10,afgain/10.0),ch_rate,audio_cut,6e3,firdes.WIN_BLACKMAN)), 1)
         self.fft_filter_xxx_0.declare_sample_delay(0)
+        self.blocks_null_sink_1 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blks2_valve_0 = grc_blks2.valve(item_size=gr.sizeof_float*1, open=bool(audio_mute))
         self.audio_sink_0 = audio.sink(int(ch_rate/10), '', True)
         self.analog_quadrature_demod_cf_0 = analog.quadrature_demod_cf(ch_rate/(2*math.pi*250e3/8.0))
@@ -163,7 +170,9 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_quadrature_demod_cf_0, 0), (self.fft_filter_xxx_0, 0))    
         self.connect((self.blks2_valve_0, 0), (self.audio_sink_0, 0))    
+        self.connect((self.blks2_valve_0, 0), (self.blocks_null_sink_0, 0))    
         self.connect((self.fft_filter_xxx_0, 0), (self.blks2_valve_0, 0))    
+        self.connect((self.fft_filter_xxx_0, 0), (self.blocks_null_sink_1, 0))    
         self.connect((self.osmosdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.osmosdr_source_0, 0), (self.rational_resampler_xxx_0, 0))    
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_quadrature_demod_cf_0, 0))    
@@ -173,13 +182,20 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_samp_rate_trim(self):
+        return self.samp_rate_trim
+
+    def set_samp_rate_trim(self, samp_rate_trim):
+        self.samp_rate_trim = samp_rate_trim
+        self.osmosdr_source_0.set_sample_rate(self.samp_rate + self.samp_rate_trim)
+
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.qtgui_freq_sink_x_0.set_frequency_range(self.freq*1e6, self.samp_rate)
-        self.osmosdr_source_0.set_sample_rate(self.samp_rate)
+        self.osmosdr_source_0.set_sample_rate(self.samp_rate + self.samp_rate_trim)
 
     def get_rfgain(self):
         return self.rfgain

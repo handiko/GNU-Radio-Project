@@ -395,7 +395,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.88e6</value>
+      <value>2.88e6 + 0.13733</value>
     </param>
   </block>
   <block>

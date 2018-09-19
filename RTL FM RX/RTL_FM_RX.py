@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: RTL SDR FM RX
-# Generated: Wed Sep 19 13:12:33 2018
+# Generated: Wed Sep 19 13:21:46 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -64,7 +64,7 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 2.88e6
-        self.rfgain = rfgain = 10
+        self.rfgain = rfgain = 12
         self.freq = freq = 103.8
         self.ch_rate = ch_rate = 240e3
         self.audio_mute = audio_mute = False
@@ -74,7 +74,7 @@ class RTL_FM_RX(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
-        self._rfgain_range = Range(0, 49, 0.1, 10, 200)
+        self._rfgain_range = Range(0, 49, 0.1, 12, 200)
         self._rfgain_win = RangeWidget(self._rfgain_range, self.set_rfgain, 'RF Gain (dB)', "counter_slider", float)
         self.top_grid_layout.addWidget(self._rfgain_win, 2,0,1,1)
         self._freq_range = Range(88.0, 108.0, 0.1, 103.8, 200)

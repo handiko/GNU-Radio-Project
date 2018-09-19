@@ -418,7 +418,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(499, 135)</value>
+      <value>(500, 135)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -540,6 +540,65 @@
     </param>
   </block>
   <block>
+    <key>fft_filter_xxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(603, 286)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fft_filter_xxx_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>nthreads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>samp_delay</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>firdes.low_pass(pow(10,afgain/10.0),ch_rate,audio_cut,6e3,firdes.WIN_BLACKMAN)</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>fff</value>
+    </param>
+  </block>
+  <block>
     <key>low_pass_filter</key>
     <param>
       <key>beta</key>
@@ -567,7 +626,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>type</key>
@@ -2381,6 +2440,12 @@
   </block>
   <connection>
     <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
+    <sink_block_id>fft_filter_xxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
     <sink_block_id>low_pass_filter_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -2388,6 +2453,12 @@
   <connection>
     <source_block_id>blks2_valve_0</source_block_id>
     <sink_block_id>audio_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fft_filter_xxx_0</source_block_id>
+    <sink_block_id>blks2_valve_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

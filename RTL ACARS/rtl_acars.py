@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rtl Acars
-# Generated: Thu Sep 20 18:22:35 2018
+# Generated: Thu Sep 20 18:30:13 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -70,14 +70,14 @@ class rtl_acars(gr.top_block, Qt.QWidget):
                 fractional_bw=None,
         )
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
-        	8192, #size
+        	8192/2, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
         	192e3, #bw
         	"", #name
                 1 #number of inputs
         )
-        self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0.set_update_time(0.05)
         self.qtgui_waterfall_sink_x_0.enable_grid(False)
         self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
         
@@ -101,12 +101,12 @@ class rtl_acars(gr.top_block, Qt.QWidget):
             self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
             self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
         
-        self.qtgui_waterfall_sink_x_0.set_intensity_range(-120, -40)
+        self.qtgui_waterfall_sink_x_0.set_intensity_range(-110, -40)
         
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-        	4096, #size
+        	2048, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
         	192e3, #bw
@@ -151,7 +151,7 @@ class rtl_acars(gr.top_block, Qt.QWidget):
         self.osmosdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
         self.osmosdr_source_0.set_sample_rate(samp_rate)
         self.osmosdr_source_0.set_center_freq(131.5e6, 0)
-        self.osmosdr_source_0.set_freq_corr(0, 0)
+        self.osmosdr_source_0.set_freq_corr(50, 0)
         self.osmosdr_source_0.set_dc_offset_mode(0, 0)
         self.osmosdr_source_0.set_iq_balance_mode(0, 0)
         self.osmosdr_source_0.set_gain_mode(False, 0)

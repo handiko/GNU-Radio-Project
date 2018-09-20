@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rtl Acars
-# Generated: Thu Sep 20 18:11:30 2018
+# Generated: Thu Sep 20 18:22:35 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -69,6 +69,42 @@ class rtl_acars(gr.top_block, Qt.QWidget):
                 taps=None,
                 fractional_bw=None,
         )
+        self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
+        	8192, #size
+        	firdes.WIN_BLACKMAN_hARRIS, #wintype
+        	0, #fc
+        	192e3, #bw
+        	"", #name
+                1 #number of inputs
+        )
+        self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0.enable_grid(False)
+        self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
+        
+        if not False:
+          self.qtgui_waterfall_sink_x_0.disable_legend()
+        
+        if "complex" == "float" or "complex" == "msg_float":
+          self.qtgui_waterfall_sink_x_0.set_plot_pos_half(not True)
+        
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        colors = [6, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_waterfall_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_waterfall_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
+            self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
+        
+        self.qtgui_waterfall_sink_x_0.set_intensity_range(-120, -40)
+        
+        self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	4096, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -78,16 +114,16 @@ class rtl_acars(gr.top_block, Qt.QWidget):
         	1 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0.set_y_axis(-140, 10)
+        self.qtgui_freq_sink_x_0.set_y_axis(-140, -20)
         self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0.enable_grid(True)
+        self.qtgui_freq_sink_x_0.set_fft_average(0.2)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
         self.qtgui_freq_sink_x_0.enable_control_panel(False)
         
-        if not True:
+        if not False:
           self.qtgui_freq_sink_x_0.disable_legend()
         
         if "complex" == "float" or "complex" == "msg_float":
@@ -131,6 +167,7 @@ class rtl_acars(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.osmosdr_source_0, 0), (self.rational_resampler_xxx_0, 0))    
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "rtl_acars")

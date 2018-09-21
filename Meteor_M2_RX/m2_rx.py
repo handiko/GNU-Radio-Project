@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Fri Sep 21 18:53:11 2018
+# Generated: Fri Sep 21 19:41:29 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -78,7 +78,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.rate = rate = [0, 2.4e6, in_file_rate]
         self.gmu = gmu = 0.002
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"
-        self.device = device = [0,"rtl=0","file="+in_file+",rate=in_file_rate,repeat=False,throttle=True"]
+        self.device = device = [0,"rtl=0","file="+str(in_file)+",rate="+str(in_file_rate)+",repeat=False,throttle=True"]
 
         ##################################################
         # Blocks
@@ -98,7 +98,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.root_raised_cosine_filter_0 = filter.fir_filter_ccf(1, firdes.root_raised_cosine(
         	1, ch_rate, baudrate*1.0, 0.7, 32*sps))
         self.rational_resampler_xxx_1 = filter.rational_resampler_ccc(
-                interpolation=int(samp_rate),
+                interpolation=int(ch_rate),
                 decimation=int(rate[source]),
                 taps=None,
                 fractional_bw=490e-3,
@@ -113,7 +113,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         	8192, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
-        	samp_rate, #bw
+        	ch_rate, #bw
         	'RF Spectrogram', #name
                 1 #number of inputs
         )
@@ -146,7 +146,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tab_grid_layout_0.addWidget(self._qtgui_waterfall_sink_x_0_win, 1,0,1,1)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
-        	2048, #size
+        	1024, #size
         	baudrate, #samp_rate
         	'Symbol Soft Decision', #name
         	1 #number of inputs
@@ -199,7 +199,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         	4096, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	0, #fc
-        	samp_rate, #bw
+        	ch_rate, #bw
         	'RF Spectrum', #name
         	1 #number of inputs
         )
@@ -334,7 +334,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_in_file(self, in_file):
         self.in_file = in_file
-        self.set_device([0,"rtl=0","file="+self.in_file+",rate=in_file_rate,repeat=False,throttle=True"])
+        self.set_device([0,"rtl=0","file="+str(self.in_file)+",rate="+str(self.in_file_rate)+",repeat=False,throttle=True"])
 
     def get_in_file_rate(self):
         return self.in_file_rate
@@ -342,6 +342,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
     def set_in_file_rate(self, in_file_rate):
         self.in_file_rate = in_file_rate
         self.set_rate([0, 2.4e6, self.in_file_rate])
+        self.set_device([0,"rtl=0","file="+str(self.in_file)+",rate="+str(self.in_file_rate)+",repeat=False,throttle=True"])
 
     def get_source(self):
         return self.source
@@ -368,6 +369,8 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.ch_rate = ch_rate
         self.set_sps(int(self.ch_rate) / self.baudrate)
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.ch_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.ch_rate)
         self.digital_clock_recovery_mm_xx_0.set_omega((self.ch_rate/self.baudrate)*(1+0.0))
 
     def get_sps(self):
@@ -382,8 +385,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
 
     def get_rf_rate(self):
         return self.rf_rate

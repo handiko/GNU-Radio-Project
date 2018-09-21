@@ -159,7 +159,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>[0,"rtl=0","file="+in_file+",rate=in_file_rate,repeat=False,throttle=True"]</value>
+      <value>[0,"rtl=0","file="+str(in_file)+",rate="+str(in_file_rate)+",repeat=False,throttle=True"]</value>
     </param>
   </block>
   <block>
@@ -2893,7 +2893,7 @@
     </param>
     <param>
       <key>bw</key>
-      <value>samp_rate</value>
+      <value>ch_rate</value>
     </param>
     <param>
       <key>alias</key>
@@ -3484,7 +3484,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>2048</value>
+      <value>1024</value>
     </param>
     <param>
       <key>srate</key>
@@ -3910,7 +3910,7 @@
     </param>
     <param>
       <key>bw</key>
-      <value>samp_rate</value>
+      <value>ch_rate</value>
     </param>
     <param>
       <key>alias</key>
@@ -4145,7 +4145,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>fbw</key>
@@ -4212,7 +4212,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(340, 132)</value>
+      <value>(339, 132)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4224,7 +4224,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>int(samp_rate)</value>
+      <value>int(ch_rate)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -4330,7 +4330,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(680, 13)</value>
+      <value>(680, 12)</value>
     </param>
     <param>
       <key>_rotation</key>

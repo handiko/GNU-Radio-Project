@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Fri Sep 21 17:43:41 2018
+# Generated: Fri Sep 21 18:29:46 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -37,7 +37,7 @@ import time
 
 class m2_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, source=2, in_file='gqrx_20180415_012338_137900000_150000_fc.raw'):
+    def __init__(self, in_file='gqrx_20180415_012338_137900000_150000_fc.raw', in_file_rate=150e3, source=2):
         gr.top_block.__init__(self, "Meteor M2 Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Meteor M2 Receiver")
@@ -63,8 +63,9 @@ class m2_rx(gr.top_block, Qt.QWidget):
         ##################################################
         # Parameters
         ##################################################
-        self.source = source
         self.in_file = in_file
+        self.in_file_rate = in_file_rate
+        self.source = source
 
         ##################################################
         # Variables
@@ -74,10 +75,10 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.sps = sps = int(ch_rate) / baudrate
         self.samp_rate = samp_rate = 300e3
         self.rf_rate = rf_rate = 2.4e6
-        self.rate = rate = [0, 2.4e6, 150e3]
+        self.rate = rate = [0, 2.4e6, in_file_rate]
         self.gmu = gmu = 0.002
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"
-        self.device = device = [0,"rtl=0","file="+in_file+",rate=150e3,throttle=True"]
+        self.device = device = [0,"rtl=0","file="+in_file+",rate=in_file_rate,repeat=False,throttle=True"]
 
         ##################################################
         # Blocks
@@ -93,11 +94,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.tab_grid_layout_1 = Qt.QGridLayout()
         self.tab_layout_1.addLayout(self.tab_grid_layout_1)
         self.tab.addTab(self.tab_widget_1, 'Symbol Synchronization')
-        self.tab_widget_2 = Qt.QWidget()
-        self.tab_layout_2 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tab_widget_2)
-        self.tab_grid_layout_2 = Qt.QGridLayout()
-        self.tab_layout_2.addLayout(self.tab_grid_layout_2)
-        self.tab.addTab(self.tab_widget_2, 'Softbits')
         self.top_layout.addWidget(self.tab)
         self.root_raised_cosine_filter_0 = filter.fir_filter_ccf(1, firdes.root_raised_cosine(
         	1, ch_rate, baudrate*1.0, 0.7, 32*sps))
@@ -149,53 +145,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tab_grid_layout_0.addWidget(self._qtgui_waterfall_sink_x_0_win, 1,0,1,1)
-        self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
-        	1024, #size
-        	baudrate*2, #samp_rate
-        	'Soft Bitstream', #name
-        	1 #number of inputs
-        )
-        self.qtgui_time_sink_x_1.set_update_time(0.10)
-        self.qtgui_time_sink_x_1.set_y_axis(-2, 2)
-        
-        self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
-        
-        self.qtgui_time_sink_x_1.enable_tags(-1, True)
-        self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_1.enable_autoscale(False)
-        self.qtgui_time_sink_x_1.enable_grid(False)
-        self.qtgui_time_sink_x_1.enable_axis_labels(True)
-        self.qtgui_time_sink_x_1.enable_control_panel(False)
-        
-        if not False:
-          self.qtgui_time_sink_x_1.disable_legend()
-        
-        labels = ['', '', '', '', '',
-                  '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-                  1, 1, 1, 1, 1]
-        colors = ["red", "red", "green", "black", "cyan",
-                  "magenta", "yellow", "dark red", "dark green", "blue"]
-        styles = [0, 1, 1, 1, 1,
-                  1, 1, 1, 1, 1]
-        markers = [0, -1, -1, -1, -1,
-                   -1, -1, -1, -1, -1]
-        alphas = [0.5, 1.0, 1.0, 1.0, 1.0,
-                  1.0, 1.0, 1.0, 1.0, 1.0]
-        
-        for i in xrange(1):
-            if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_time_sink_x_1.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_1.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_1.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_1.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_1.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
-        
-        self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.pyqwidget(), Qt.QWidget)
-        self.tab_layout_2.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
         	2048, #size
         	baudrate, #samp_rate
@@ -365,7 +314,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_cma_equalizer_cc_0, 0))    
         self.connect((self.digital_cma_equalizer_cc_0, 0), (self.digital_costas_loop_cc_0, 0))    
         self.connect((self.digital_constellation_soft_decoder_cf_1, 0), (self.analog_rail_ff_0, 0))    
-        self.connect((self.digital_constellation_soft_decoder_cf_1, 0), (self.qtgui_time_sink_x_1, 0))    
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_soft_decoder_cf_1, 0))    
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))    
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_time_sink_x_0, 0))    
@@ -381,19 +329,26 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_in_file(self):
+        return self.in_file
+
+    def set_in_file(self, in_file):
+        self.in_file = in_file
+        self.set_device([0,"rtl=0","file="+self.in_file+",rate=in_file_rate,repeat=False,throttle=True"])
+
+    def get_in_file_rate(self):
+        return self.in_file_rate
+
+    def set_in_file_rate(self, in_file_rate):
+        self.in_file_rate = in_file_rate
+        self.set_rate([0, 2.4e6, self.in_file_rate])
+
     def get_source(self):
         return self.source
 
     def set_source(self, source):
         self.source = source
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
-
-    def get_in_file(self):
-        return self.in_file
-
-    def set_in_file(self, in_file):
-        self.in_file = in_file
-        self.set_device([0,"rtl=0","file="+self.in_file+",rate=150e3,throttle=True"])
 
     def get_baudrate(self):
         return self.baudrate
@@ -403,7 +358,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.set_sps(int(self.ch_rate) / self.baudrate)
         self.set_ch_rate(self.baudrate*2.0)
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
-        self.qtgui_time_sink_x_1.set_samp_rate(self.baudrate*2)
         self.qtgui_time_sink_x_0.set_samp_rate(self.baudrate)
         self.digital_clock_recovery_mm_xx_0.set_omega((self.ch_rate/self.baudrate)*(1+0.0))
 
@@ -469,11 +423,14 @@ class m2_rx(gr.top_block, Qt.QWidget):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "-i", "--source", dest="source", type="intx", default=2,
-        help="Set Input Source [default=%default]")
-    parser.add_option(
         "-I", "--in-file", dest="in_file", type="string", default='gqrx_20180415_012338_137900000_150000_fc.raw',
         help="Set Input File [default=%default]")
+    parser.add_option(
+        "-r", "--in-file-rate", dest="in_file_rate", type="eng_float", default=eng_notation.num_to_str(150e3),
+        help="Set Input File Sample Rate [default=%default]")
+    parser.add_option(
+        "-i", "--source", dest="source", type="intx", default=2,
+        help="Set Input Source [default=%default]")
     return parser
 
 
@@ -487,7 +444,7 @@ def main(top_block_cls=m2_rx, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(source=options.source, in_file=options.in_file)
+    tb = top_block_cls(in_file=options.in_file, in_file_rate=options.in_file_rate, source=options.source)
     tb.start()
     tb.show()
 

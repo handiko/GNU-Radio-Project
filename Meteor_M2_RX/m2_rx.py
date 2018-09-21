@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Fri Sep 21 19:47:31 2018
+# Generated: Fri Sep 21 20:10:06 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -38,7 +38,7 @@ import time
 
 class m2_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, in_file='gqrx_20180415_012338_137900000_150000_fc.raw', in_file_rate=150e3, source=2):
+    def __init__(self, in_file='gqrx_20180415_012338_137900000_150000_fc.raw', in_file_rate=150e3, source=1):
         gr.top_block.__init__(self, "Meteor M2 Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Meteor M2 Receiver")
@@ -427,7 +427,7 @@ def argument_parser():
         "-r", "--in-file-rate", dest="in_file_rate", type="eng_float", default=eng_notation.num_to_str(150e3),
         help="Set Input File Sample Rate [default=%default]")
     parser.add_option(
-        "-i", "--source", dest="source", type="intx", default=2,
+        "-i", "--source", dest="source", type="intx", default=1,
         help="Set Input Source [default=%default]")
     return parser
 

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Fri Sep 21 19:41:29 2018
+# Generated: Fri Sep 21 19:44:40 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -27,6 +27,7 @@ from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from gnuradio.filter import pfb
 from optparse import OptionParser
 import math
 import osmosdr
@@ -97,18 +98,6 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self.tab)
         self.root_raised_cosine_filter_0 = filter.fir_filter_ccf(1, firdes.root_raised_cosine(
         	1, ch_rate, baudrate*1.0, 0.7, 32*sps))
-        self.rational_resampler_xxx_1 = filter.rational_resampler_ccc(
-                interpolation=int(ch_rate),
-                decimation=int(rate[source]),
-                taps=None,
-                fractional_bw=490e-3,
-        )
-        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
-                interpolation=int(ch_rate),
-                decimation=int(samp_rate),
-                taps=None,
-                fractional_bw=None,
-        )
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	8192, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -279,6 +268,12 @@ class m2_rx(gr.top_block, Qt.QWidget):
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tab_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,1)
+        self.pfb_arb_resampler_xxx_0 = pfb.arb_resampler_ccf(
+        	  ch_rate/rate[source],
+                  taps=None,
+        	  flt_size=32)
+        self.pfb_arb_resampler_xxx_0.declare_sample_delay(0)
+        	
         self.osmosdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + device[source] )
         self.osmosdr_source_0.set_sample_rate(rate[source])
         self.osmosdr_source_0.set_center_freq(137.9e6 , 0)
@@ -317,11 +312,10 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_soft_decoder_cf_1, 0))    
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))    
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_time_sink_x_0, 0))    
-        self.connect((self.osmosdr_source_0, 0), (self.rational_resampler_xxx_1, 0))    
-        self.connect((self.rational_resampler_xxx_0, 0), (self.analog_agc_xx_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.qtgui_waterfall_sink_x_0, 0))    
-        self.connect((self.rational_resampler_xxx_1, 0), (self.rational_resampler_xxx_0, 0))    
+        self.connect((self.osmosdr_source_0, 0), (self.pfb_arb_resampler_xxx_0, 0))    
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.analog_agc_xx_0, 0))    
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
         self.connect((self.root_raised_cosine_filter_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))    
 
     def closeEvent(self, event):
@@ -349,6 +343,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_source(self, source):
         self.source = source
+        self.pfb_arb_resampler_xxx_0.set_rate(self.ch_rate/self.rate[self.source])
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
 
     def get_baudrate(self):
@@ -371,6 +366,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.ch_rate, self.baudrate*1.0, 0.7, 32*self.sps))
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.ch_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.ch_rate)
+        self.pfb_arb_resampler_xxx_0.set_rate(self.ch_rate/self.rate[self.source])
         self.digital_clock_recovery_mm_xx_0.set_omega((self.ch_rate/self.baudrate)*(1+0.0))
 
     def get_sps(self):
@@ -397,6 +393,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
 
     def set_rate(self, rate):
         self.rate = rate
+        self.pfb_arb_resampler_xxx_0.set_rate(self.ch_rate/self.rate[self.source])
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
 
     def get_gmu(self):

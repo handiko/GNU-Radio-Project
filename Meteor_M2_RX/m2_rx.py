@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Tue Sep 18 13:25:12 2018
+# Generated: Fri Sep 21 17:43:41 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -37,7 +37,7 @@ import time
 
 class m2_rx(gr.top_block, Qt.QWidget):
 
-    def __init__(self, source=1):
+    def __init__(self, source=2, in_file='gqrx_20180415_012338_137900000_150000_fc.raw'):
         gr.top_block.__init__(self, "Meteor M2 Receiver")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Meteor M2 Receiver")
@@ -64,6 +64,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         # Parameters
         ##################################################
         self.source = source
+        self.in_file = in_file
 
         ##################################################
         # Variables
@@ -76,7 +77,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.rate = rate = [0, 2.4e6, 150e3]
         self.gmu = gmu = 0.002
         self.filename = filename = "meteor_LRPT_72kbaud_" + datetime.now().strftime("%d%m%Y_%H%M") + ".s"
-        self.device = device = [0,"rtl=0","file=gqrx_20180415_012338_137900000_150000_fc.raw,rate=150e3,throttle=True"]
+        self.device = device = [0,"rtl=0","file="+in_file+",rate=150e3,throttle=True"]
 
         ##################################################
         # Blocks
@@ -387,6 +388,13 @@ class m2_rx(gr.top_block, Qt.QWidget):
         self.source = source
         self.osmosdr_source_0.set_sample_rate(self.rate[self.source])
 
+    def get_in_file(self):
+        return self.in_file
+
+    def set_in_file(self, in_file):
+        self.in_file = in_file
+        self.set_device([0,"rtl=0","file="+self.in_file+",rate=150e3,throttle=True"])
+
     def get_baudrate(self):
         return self.baudrate
 
@@ -461,8 +469,11 @@ class m2_rx(gr.top_block, Qt.QWidget):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "-i", "--source", dest="source", type="intx", default=1,
+        "-i", "--source", dest="source", type="intx", default=2,
         help="Set Input Source [default=%default]")
+    parser.add_option(
+        "-I", "--in-file", dest="in_file", type="string", default='gqrx_20180415_012338_137900000_150000_fc.raw',
+        help="Set Input File [default=%default]")
     return parser
 
 
@@ -476,7 +487,7 @@ def main(top_block_cls=m2_rx, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(source=options.source)
+    tb = top_block_cls(source=options.source, in_file=options.in_file)
     tb.start()
     tb.show()
 

@@ -147,7 +147,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(85, 300)</value>
+      <value>(84, 299)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -159,7 +159,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>[0,"rtl=0","file=gqrx_20180415_012338_137900000_150000_fc.raw,rate=150e3,throttle=True"]</value>
+      <value>[0,"rtl=0","file="+in_file+",rate=150e3,throttle=True"]</value>
     </param>
   </block>
   <block>
@@ -1035,6 +1035,49 @@
     <param>
       <key>import</key>
       <value>from datetime import datetime</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(797, 13)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>in_file</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Input File</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>I</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>gqrx_20180415_012338_137900000_150000_fc.raw</value>
     </param>
   </block>
   <block>
@@ -2341,7 +2384,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(12, 106)</value>
+      <value>(13, 106)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4268,7 +4311,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>2</value>
     </param>
   </block>
   <block>

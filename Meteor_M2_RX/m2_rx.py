@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Meteor M2 Receiver
-# Generated: Fri Sep 21 18:29:46 2018
+# Generated: Fri Sep 21 18:53:11 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -294,7 +294,7 @@ class m2_rx(gr.top_block, Qt.QWidget):
           
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(6.28/200, 4, False)
         self.digital_constellation_soft_decoder_cf_1 = digital.constellation_soft_decoder_cf(digital.constellation_calcdist(([-1-1j, -1+1j, 1+1j, 1-1j]), ([0, 1, 3, 2]), 4, 1).base())
-        self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(16, 1.0, 6.28/400, 1)
+        self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(16, 0.75, 6.28/400, 1)
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_cc((ch_rate/baudrate)*(1+0.0), 0.25*gmu*gmu, 0.5, gmu, 0.005)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_float_to_char_0 = blocks.float_to_char(1, 127)

@@ -870,7 +870,7 @@
     </param>
     <param>
       <key>modulus</key>
-      <value>1.0</value>
+      <value>0.75</value>
     </param>
     <param>
       <key>num_taps</key>

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Nfm Rx Test
-# Generated: Fri Sep 21 20:44:53 2018
+# Generated: Fri Sep 21 21:16:48 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -21,7 +21,6 @@ from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 from gnuradio import eng_notation
-from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
@@ -62,15 +61,15 @@ class nfm_rx_test(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.shift = shift = 0.0
+        self.shift = shift = 38e3
         self.samp_rate = samp_rate = 150e3
-        self.output_rate = output_rate = 24e3
-        self.filename = filename = "NFM_Test_1.raw"
+        self.output_rate = output_rate = 48e3
+        self.filename = filename = "NOAA-18-APT_20180921_137881200_150000_fc.raw"
 
         ##################################################
         # Blocks
         ##################################################
-        self._shift_range = Range(-samp_rate/2.0, samp_rate/2.0, 1e3, 0.0, 200)
+        self._shift_range = Range(-samp_rate/2.0, samp_rate/2.0, 1e3, 38e3, 200)
         self._shift_win = RangeWidget(self._shift_range, self.set_shift, "shift", "counter_slider", float)
         self.top_layout.addWidget(self._shift_win)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
@@ -158,33 +157,32 @@ class nfm_rx_test(gr.top_block, Qt.QWidget):
         	  flt_size=32)
         self.pfb_arb_resampler_xxx_0.declare_sample_delay(0)
         	
-        self.low_pass_filter_0 = filter.fir_filter_fff(1, firdes.low_pass(
-        	0.1, output_rate, 3e3, 1e3, firdes.WIN_HAMMING, 6.76))
+        self.blocks_wavfile_sink_0 = blocks.wavfile_sink('new-apt.wav', 1, int(output_rate), 16)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_rotator_cc_0_0 = blocks.rotator_cc(-2*math.pi*shift/samp_rate)
         self.blocks_rotator_cc_0 = blocks.rotator_cc(-2*math.pi*shift/samp_rate)
-        self.blocks_file_source_0_0 = blocks.file_source(gr.sizeof_gr_complex*1, filename, True)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, filename, True)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((0.2, ))
+        self.blocks_file_source_0_0 = blocks.file_source(gr.sizeof_gr_complex*1, filename, False)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, filename, False)
         self.audio_sink_0 = audio.sink(int(output_rate), '', True)
-        self.analog_nbfm_rx_0 = analog.nbfm_rx(
-        	audio_rate=int(output_rate),
-        	quad_rate=int(output_rate),
-        	tau=75e-6,
-        	max_dev=5e3,
-          )
+        self.analog_wfm_rcv_0 = analog.wfm_rcv(
+        	quad_rate=output_rate,
+        	audio_decimation=1,
+        )
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_nbfm_rx_0, 0), (self.low_pass_filter_0, 0))    
+        self.connect((self.analog_wfm_rcv_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
         self.connect((self.blocks_file_source_0, 0), (self.blocks_rotator_cc_0, 0))    
         self.connect((self.blocks_file_source_0_0, 0), (self.blocks_throttle_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_wavfile_sink_0, 0))    
         self.connect((self.blocks_rotator_cc_0, 0), (self.pfb_arb_resampler_xxx_0, 0))    
         self.connect((self.blocks_rotator_cc_0_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.blocks_rotator_cc_0_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.blocks_rotator_cc_0_0, 0))    
-        self.connect((self.low_pass_filter_0, 0), (self.audio_sink_0, 0))    
-        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.analog_nbfm_rx_0, 0))    
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "nfm_rx_test")
@@ -217,15 +215,14 @@ class nfm_rx_test(gr.top_block, Qt.QWidget):
     def set_output_rate(self, output_rate):
         self.output_rate = output_rate
         self.pfb_arb_resampler_xxx_0.set_rate(self.output_rate/self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(0.1, self.output_rate, 3e3, 1e3, firdes.WIN_HAMMING, 6.76))
 
     def get_filename(self):
         return self.filename
 
     def set_filename(self, filename):
         self.filename = filename
-        self.blocks_file_source_0_0.open(self.filename, True)
-        self.blocks_file_source_0.open(self.filename, True)
+        self.blocks_file_source_0_0.open(self.filename, False)
+        self.blocks_file_source_0.open(self.filename, False)
 
 
 def main(top_block_cls=nfm_rx_test, options=None):

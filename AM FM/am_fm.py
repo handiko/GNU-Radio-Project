@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Am Fm
-# Generated: Sun Sep 23 15:48:05 2018
+# Generated: Sun Sep 23 15:52:44 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -24,6 +24,7 @@ from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
+from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
 import sip
 import sys
@@ -58,10 +59,22 @@ class am_fm(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 32000
+        self.gain = gain = 0
+        self.delay = delay = 0
+        self.const = const = 1
 
         ##################################################
         # Blocks
         ##################################################
+        self._gain_range = Range(-20, 20, 1, 0, 200)
+        self._gain_win = RangeWidget(self._gain_range, self.set_gain, "gain", "counter_slider", float)
+        self.top_layout.addWidget(self._gain_win)
+        self._delay_range = Range(-1000, 1000, 1, 0, 200)
+        self._delay_win = RangeWidget(self._delay_range, self.set_delay, "delay", "counter_slider", float)
+        self.top_layout.addWidget(self._delay_win)
+        self._const_range = Range(-5, 5, 1, 1, 200)
+        self._const_win = RangeWidget(self._const_range, self.set_const, "const", "counter_slider", float)
+        self.top_layout.addWidget(self._const_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -107,8 +120,10 @@ class am_fm(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((pow(10.0,gain/10.0), ))
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
-        self.blocks_add_const_vxx_0 = blocks.add_const_vff((1, ))
+        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, 0)
+        self.blocks_add_const_vxx_0 = blocks.add_const_vff((const, ))
         self.analog_wfm_tx_0 = analog.wfm_tx(
         	audio_rate=int(samp_rate),
         	quad_rate=int(samp_rate),
@@ -122,10 +137,12 @@ class am_fm(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_sig_source_x_0, 0), (self.analog_wfm_tx_0, 0))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_add_const_vxx_0, 0))    
-        self.connect((self.analog_wfm_tx_0, 0), (self.blocks_multiply_xx_0, 1))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
+        self.connect((self.analog_wfm_tx_0, 0), (self.blocks_delay_0, 0))    
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0, 0))    
+        self.connect((self.blocks_delay_0, 0), (self.blocks_multiply_xx_0, 1))    
         self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_multiply_xx_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))    
         self.connect((self.blocks_multiply_xx_0, 0), (self.blocks_throttle_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
 
@@ -142,6 +159,26 @@ class am_fm(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
+
+    def get_gain(self):
+        return self.gain
+
+    def set_gain(self, gain):
+        self.gain = gain
+        self.blocks_multiply_const_vxx_0.set_k((pow(10.0,self.gain/10.0), ))
+
+    def get_delay(self):
+        return self.delay
+
+    def set_delay(self, delay):
+        self.delay = delay
+
+    def get_const(self):
+        return self.const
+
+    def set_const(self, const):
+        self.const = const
+        self.blocks_add_const_vxx_0.set_k((self.const, ))
 
 
 def main(top_block_cls=am_fm, options=None):

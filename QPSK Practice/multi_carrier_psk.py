@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Multi Carrier Psk
-# Generated: Mon Jul  1 08:07:58 2019
+# Generated: Mon Jul  1 08:13:03 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -63,6 +63,9 @@ class multi_carrier_psk(gr.top_block, Qt.QWidget):
         self.sps = sps = 4
         self.nfilts = nfilts = 32
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
+        
+        self.Const_PLD = Const_PLD = digital.constellation_calcdist((digital.psk_4()[0]), (digital.psk_4()[1]), 4, 1).base()
+        
         self.timing_loop_bw = timing_loop_bw = 6.28/100.0
         self.time_offset = time_offset = 1.00
         self.taps = taps = [1.0, 0.25-0.25j, 0.50 + 0.10j, -0.3 + 0.2j]
@@ -75,9 +78,7 @@ class multi_carrier_psk(gr.top_block, Qt.QWidget):
         self.noise_volt = noise_volt = 0.0001
         self.freq_offset = freq_offset = 0
         self.eq_gain = eq_gain = 0.01
-        
-        self.Const_PLD = Const_PLD = digital.constellation_calcdist((digital.psk_4()[0]), (digital.psk_4()[1]), 4, 1).base()
-        
+        self.arity = arity = Const_PLD.arity()
 
         ##################################################
         # Blocks
@@ -248,10 +249,10 @@ class multi_carrier_psk(gr.top_block, Qt.QWidget):
         self.digital_pfb_clock_sync_xxx_0_1 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (pcs_taps), nfilts, nfilts/2.0, 1.5, 2)
         self.digital_pfb_clock_sync_xxx_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (pcs_taps), nfilts, nfilts/2.0, 1.5, 2)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (pcs_taps), nfilts, nfilts/2.0, 1.5, 2)
-        self.digital_costas_loop_cc_0_1_0 = digital.costas_loop_cc(phase_bw, 4, False)
-        self.digital_costas_loop_cc_0_1 = digital.costas_loop_cc(phase_bw, 4, False)
-        self.digital_costas_loop_cc_0_0 = digital.costas_loop_cc(phase_bw, 4, False)
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, 4, False)
+        self.digital_costas_loop_cc_0_1_0 = digital.costas_loop_cc(phase_bw, arity, False)
+        self.digital_costas_loop_cc_0_1 = digital.costas_loop_cc(phase_bw, arity, False)
+        self.digital_costas_loop_cc_0_0 = digital.costas_loop_cc(phase_bw, arity, False)
+        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
         self.digital_constellation_modulator_0_0_1 = digital.generic_mod(
           constellation=Const_PLD,
           differential=True,
@@ -392,6 +393,12 @@ class multi_carrier_psk(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps
         self.set_pcs_taps(self.rrc_taps)
 
+    def get_Const_PLD(self):
+        return self.Const_PLD
+
+    def set_Const_PLD(self, Const_PLD):
+        self.Const_PLD = Const_PLD
+
     def get_timing_loop_bw(self):
         return self.timing_loop_bw
 
@@ -486,11 +493,11 @@ class multi_carrier_psk(gr.top_block, Qt.QWidget):
         self.digital_cma_equalizer_cc_0_0.set_gain(self.eq_gain)
         self.digital_cma_equalizer_cc_0.set_gain(self.eq_gain)
 
-    def get_Const_PLD(self):
-        return self.Const_PLD
+    def get_arity(self):
+        return self.arity
 
-    def set_Const_PLD(self, Const_PLD):
-        self.Const_PLD = Const_PLD
+    def set_arity(self, arity):
+        self.arity = arity
 
 
 def main(top_block_cls=multi_carrier_psk, options=None):

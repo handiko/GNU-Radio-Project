@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Multi Psk
-# Generated: Mon Jul  1 09:26:14 2019
+# Generated: Mon Jul  1 09:34:04 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -70,7 +70,8 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts*1.0, nfilts*1.0, 1.0/float(sps), 0.35, 11*sps*nfilts)
           
         self.phase_bw = phase_bw = 6.28/100.0
-        self.noise_volt = noise_volt = 0.0001*3000
+        self.out_sps = out_sps = 2
+        self.noise_volt = noise_volt = 0.0001 + (0.3*1)
         self.freq_offset = freq_offset = 0
         self.eq_gain = eq_gain = 0.01
         
@@ -89,7 +90,7 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
         self._phase_bw_range = Range(0.0, 1.0, 0.01, 6.28/100.0, 200)
         self._phase_bw_win = RangeWidget(self._phase_bw_range, self.set_phase_bw, 'Phase: Bandwidth', "slider", float)
         self.top_grid_layout.addWidget(self._phase_bw_win, 2,1,1,1)
-        self._noise_volt_range = Range(0, 1, 0.01, 0.0001*3000, 200)
+        self._noise_volt_range = Range(0, 1, 0.01, 0.0001 + (0.3*1), 200)
         self._noise_volt_win = RangeWidget(self._noise_volt_range, self.set_noise_volt, 'Noise Voltage', "counter_slider", float)
         self.top_grid_layout.addWidget(self._noise_volt_win, 0,0,1,1)
         self._freq_offset_range = Range(-0.1, 0.1, 0.001, 0, 200)
@@ -252,7 +253,7 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-        colors = ["blue", "red", "red", "red", "red",
+        colors = ["blue", "red", "green", "magenta", "red",
                   "red", "red", "red", "red", "red"]
         styles = [0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0]
@@ -273,10 +274,10 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_const_sink_x_0_win, 4,0,1,1)
-        self.digital_pfb_clock_sync_xxx_0_0_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, 2)
-        self.digital_pfb_clock_sync_xxx_0_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, 2)
-        self.digital_pfb_clock_sync_xxx_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, 2)
-        self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, 2)
+        self.digital_pfb_clock_sync_xxx_0_0_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, out_sps)
+        self.digital_pfb_clock_sync_xxx_0_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, out_sps)
+        self.digital_pfb_clock_sync_xxx_0_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, out_sps)
+        self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2.0, 1.5, out_sps)
         self.digital_costas_loop_cc_0_0_0_0 = digital.costas_loop_cc(phase_bw, const.arity(), False)
         self.digital_costas_loop_cc_0_0_0 = digital.costas_loop_cc(phase_bw, const.arity(), False)
         self.digital_costas_loop_cc_0_0 = digital.costas_loop_cc(phase_bw, const.arity(), False)
@@ -317,10 +318,10 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
           verbose=False,
           log=False,
           )
-        self.digital_cma_equalizer_cc_0_0_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, 2)
-        self.digital_cma_equalizer_cc_0_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, 2)
-        self.digital_cma_equalizer_cc_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, 2)
-        self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(15, 1, eq_gain, 2)
+        self.digital_cma_equalizer_cc_0_0_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, out_sps)
+        self.digital_cma_equalizer_cc_0_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, out_sps)
+        self.digital_cma_equalizer_cc_0_0 = digital.cma_equalizer_cc(15, 1, eq_gain, out_sps)
+        self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(15, 1, eq_gain, out_sps)
         self.channels_channel_model_3 = channels.channel_model(
         	noise_voltage=noise_volt,
         	frequency_offset=freq_offset,
@@ -474,6 +475,12 @@ class Multi_PSK(gr.top_block, Qt.QWidget):
         self.digital_costas_loop_cc_0_0_0.set_loop_bandwidth(self.phase_bw)
         self.digital_costas_loop_cc_0_0.set_loop_bandwidth(self.phase_bw)
         self.digital_costas_loop_cc_0.set_loop_bandwidth(self.phase_bw)
+
+    def get_out_sps(self):
+        return self.out_sps
+
+    def set_out_sps(self, out_sps):
+        self.out_sps = out_sps
 
     def get_noise_volt(self):
         return self.noise_volt

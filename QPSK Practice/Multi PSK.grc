@@ -293,7 +293,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0.0001*3000</value>
+      <value>0.0001 + (0.3*1)</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -346,6 +346,33 @@
     <param>
       <key>widget</key>
       <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(78, 1097)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>out_sps</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2</value>
     </param>
   </block>
   <block>
@@ -1130,7 +1157,7 @@
     </param>
     <param>
       <key>sps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
   </block>
   <block>
@@ -1185,7 +1212,7 @@
     </param>
     <param>
       <key>sps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
   </block>
   <block>
@@ -1240,7 +1267,7 @@
     </param>
     <param>
       <key>sps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
   </block>
   <block>
@@ -1295,7 +1322,7 @@
     </param>
     <param>
       <key>sps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
   </block>
   <block>
@@ -1810,7 +1837,7 @@
     </param>
     <param>
       <key>osps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
     <param>
       <key>sps</key>
@@ -1881,7 +1908,7 @@
     </param>
     <param>
       <key>osps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
     <param>
       <key>sps</key>
@@ -1952,7 +1979,7 @@
     </param>
     <param>
       <key>osps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
     <param>
       <key>sps</key>
@@ -2023,7 +2050,7 @@
     </param>
     <param>
       <key>osps</key>
-      <value>2</value>
+      <value>out_sps</value>
     </param>
     <param>
       <key>sps</key>
@@ -2166,7 +2193,7 @@
     </param>
     <param>
       <key>color3</key>
-      <value>"red"</value>
+      <value>"green"</value>
     </param>
     <param>
       <key>label3</key>
@@ -2190,7 +2217,7 @@
     </param>
     <param>
       <key>color4</key>
-      <value>"red"</value>
+      <value>"magenta"</value>
     </param>
     <param>
       <key>label4</key>
